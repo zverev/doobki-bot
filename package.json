@@ -1,12 +1,15 @@
 {
-  "name": "openshift-cartridge-nodejs-template",
-  "version": "1.0.1",
-  "description": "Custom Node.js cartridge for OpenShift - sample application",
+  "name": "propanebot",
+  "version": "0.0.1",
+  "description": "odin stalker ubil drugogo",
   "private": true,
   "main": "start.js",
   "scripts": {
     "start": "node --use_strict start.js"
   },
-  "author": "Ionut-Cristian Florescu <ionut.florescu@gmail.com>",
-  "license": "ISC"
+  "author": "Jerry <farglowparty@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.21.1"
+  }
 }
