@@ -11,7 +11,11 @@ var bot = new TelegramBot(config.telegram.token, {
 // Any kind of message
 bot.on('message', function(msg) {
     // debugger;
-    var userName = (msg.from.first_name || '') + (msg.from.last_name || '') + (msg.from.username || '');
+    var userName = [
+        (msg.from.first_name || ''),
+        (msg.from.last_name || ''),
+        (msg.from.username ? '@' + msg.from.username : '')
+    ].join(' ');
     var userId = msg.from.id;
 
     var msgType, msgBody;
@@ -37,7 +41,7 @@ bot.on('message', function(msg) {
     var chatId = msg.chat.id;
     bot.sendMessage(chatId, 'saving..').then(function() {
         debugger;
-        message.save(function (err, model, affected) {
+        message.save(function(err, model, affected) {
             var msg;
             if (err) {
                 msg = 'error saving';
