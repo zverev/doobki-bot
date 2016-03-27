@@ -1,4 +1,6 @@
 var TelegramBot = require('node-telegram-bot-api');
+var moment = require('moment');
+moment.locale('ru');
 
 var config = require('./config.js');
 var utils = require('./utils.js');
@@ -21,10 +23,10 @@ timer.on('hour', function () {
         } else {
             usersCollection.map(function (user) {
                 bot.sendMessage(user.id, 'кот под колпаком');
-            })
+            });
         }
     });
-})
+});
 
 bot.on('text', function(msg) {
     var fromId = msg.from.id;
@@ -32,11 +34,20 @@ bot.on('text', function(msg) {
         return saveMessage(msg);
     }).then(function() {
         // TODO: log ok
-        bot.sendMessage(fromId, '⚡️👌');
+        debugger;
+        if (isMayMessage(msg.text)) {
+            bot.sendMessage(fromId, moment().to((new Date()).getFullYear() + '-05-01'));
+        } else {
+            bot.sendMessage(fromId, '⚡️👌');
+        }
     }, function(err) {
         bot.sendMessage(fromId, 'error :(');
     });
 });
+
+function isMayMessage(text) {
+    return !!text.match(/(май|мая)/ig);
+}
 
 function checkUser(msg) {
     var fromId = msg.from.id;
