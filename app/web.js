@@ -3,8 +3,10 @@ var process = require('process');
 var http = require('http');
 var path = require('path');
 
+var utils = require('./utils.js');
 var config = require('./config.js');
 var TextMessageModel = require('./TextMessageModel.js');
+var UserModel = require('./UserModel.js');
 
 var app = express();
 
@@ -18,14 +20,29 @@ app.use(function (req, res, next) {
 });
 
 app.get('/api/messages', function (req, res) {
-    TextMessageModel.find(function (err, messages) {
+    UserModel.find({}, function (err, usersCollection) {
         if (err) {
             console.log('error');
+            return;
         } else {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(messages));
+            var users = utils.createHash(usersCollection, 'id');
+            debugger;
+            TextMessageModel.find(function (err, messagesCollection) {
+                if (err) {
+                    console.log('error');
+                } else {
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify(messagesCollection.map(function (message) {
+                        return {
+                            user: users[message.userId] ? users[message.userId].toString() : 'unknown user',
+                            body: message.body,
+                            date: message.date
+                        }
+                    })));
+                }
+            })
         }
-    })
+    });
 });
 
 app.use(express.static(path.join(process.cwd(), 'static')));
