@@ -1,20 +1,26 @@
+var express = require('express');
 var http = require('http');
 
 var config = require('./config.js');
 
-var server = http.createServer(function(req, res) {
-    var url = req.url
-        // IMPORTANT: Your application HAS to respond to GET /health with status 200
-        //            for OpenShift health monitoring
-    if (url == '/health') {
+var app = express();
+
+app.set('port', config.web.port);
+
+app.use(function (req, res, next) {
+    if (req.url == '/health') {
         res.writeHead(200);
-        res.end();
+        res.end('ok');
     } else {
-        res.writeHead(200);
-        res.end('hello');
+        next();
     }
 });
 
-server.listen(config.web.port, config.web.ip, function() {
+app.use(function (req, res, next) {
+    res.writeHead(404);
+    res.end('not found');
+});
+
+http.createServer(app).listen(config.web.port, config.web.ip, function() {
     console.log(`Application worker ${process.pid} started...`);
 });
