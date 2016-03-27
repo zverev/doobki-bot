@@ -42,13 +42,11 @@ bot.on('message', function(msg) {
     bot.sendMessage(chatId, 'saving..').then(function() {
         debugger;
         message.save(function(err, model, affected) {
-            var msg;
             if (err) {
-                msg = 'error saving';
+                // TODO: log error
             } else {
-                msg = model.toString();
+                // TODO: log success
             }
-            bot.sendMessage(chatId, msg);
         })
     });
 });

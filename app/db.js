@@ -1,4 +1,3 @@
-console.log('db required');
 var mongoose = require('mongoose');
 var config = require('./config.js');
 
