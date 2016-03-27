@@ -1,14 +1,30 @@
 var TelegramBot = require('node-telegram-bot-api');
+
 var config = require('./config.js');
 var utils = require('./utils.js');
+var Timer = require('./Timer.js');
 
 var TextMessageModel = require('./TextMessageModel.js');
 var UserModel = require('./UserModel.js');
+
+var timer = new Timer();
 
 // Setup polling way
 var bot = new TelegramBot(config.telegram.token, {
     polling: true
 });
+
+timer.on('hour', function () {
+    UserModel.find({}, function (err, usersCollection) {
+        if (err) {
+            console.log('database error', err);
+        } else {
+            usersCollection.map(function (user) {
+                bot.sendMessage(user.id, 'кот под колпаком');
+            })
+        }
+    });
+})
 
 bot.on('text', function(msg) {
     var fromId = msg.from.id;
