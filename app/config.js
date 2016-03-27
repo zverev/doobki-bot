@@ -8,12 +8,12 @@ var envDbPort = env.OPENSHIFT_MONGODB_DB_PORT;
 
 if (!envTelegramToken || !envDbUsername || !envDbPassword || !envDbHost || !envDbPort) {
     // console.error('not all environment variables are set');
-    var evars = ['PROPANEBOT_TOKEN', 'MONGODB_DB_USERNAME', 'MONGODB_DB_PASSWORD', 'MONGODB_DB_HOST', 'MONGODB_DB_PORT'].map(function (v) {
+    var evars = ['TELEGRAM_TOKEN', 'MONGODB_DB_USERNAME', 'MONGODB_DB_PASSWORD', 'MONGODB_DB_HOST', 'MONGODB_DB_PORT'].map(function (v) {
         return 'OPENSHIFT_' + v;
     }).filter(function (v) {
         return !env[v];
     });
-    console.error('not all environment variables are set', evars);
+    throw new Error('not all environment variables are set ' + evars.join(' '));
     return;
 }
 
