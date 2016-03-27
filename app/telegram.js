@@ -1,52 +1,44 @@
 var TelegramBot = require('node-telegram-bot-api');
 var config = require('./config.js');
 
-var MessageModel = require('./db.js').MessageModel;
+var TextMessageModel = require('./TextMessageModel.js');
 
 // Setup polling way
 var bot = new TelegramBot(config.telegram.token, {
     polling: true
 });
 
-// Any kind of message
-bot.on('message', function(msg) {
-    // debugger;
-    var userName = [
-        (msg.from.first_name || ''),
-        (msg.from.last_name || ''),
-        (msg.from.username ? '@' + msg.from.username : '')
-    ].join(' ');
-    var userId = msg.from.id;
+bot.on('text', function(msg) {
+    var fromId = msg.from.id;
+    bot.sendMessage(fromId, 'saving..');
+    saveMessage(msg).then(function () {
+        bot.sendMessage(fromId, 'ok!');
+    }, function (err) {
+         bot.sendMessage(fromId, 'error :(');
+    })
+});
 
-    var msgType, msgBody;
-    if (msg.text) {
-        msgType = 'text';
-        msgBody = msg.text;
-    } else if (msg.photo && msg.photo.length) {
-        msgType = 'photo';
-        msgBody = msg.photo[msg.photo.length - 1].file_id;
-    } else {
-        msgType = 'unknown';
-        msgBody = '';
-    }
+function saveMessage(msg) {
+    return new Promise(function(resolve, reject) {
+        var message = new TextMessageModel({
+            userid: msg.from.id,
+            chatid: msg.chat.id,
+            type: 'text',
+            body: msg.text
+        });
 
-    var message = new MessageModel({
-        userid: msg.from.id,
-        chatid: msg.chat.id,
-        username: userName,
-        type: msgType,
-        body: msgBody
-    });
-
-    var chatId = msg.chat.id;
-    bot.sendMessage(chatId, 'saving..').then(function() {
-        debugger;
         message.save(function(err, model, affected) {
             if (err) {
-                // TODO: log error
+                reject(err);
             } else {
-                // TODO: log success
+                resolve();
             }
-        })
+        });
     });
-});
+}
+
+function getUsername(msg) {
+    return [
+        (msg.from.first_name || ''), (msg.from.last_name || ''), (msg.from.username ? '@' + msg.from.username : '')
+    ].join(' ');
+}

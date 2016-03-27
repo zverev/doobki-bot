@@ -4,7 +4,7 @@ var http = require('http');
 var path = require('path');
 
 var config = require('./config.js');
-var MessageModel = require('./db').MessageModel;
+var TextMessageModel = require('./TextMessageModel.js');
 
 var app = express();
 
@@ -18,7 +18,7 @@ app.use(function (req, res, next) {
 });
 
 app.get('/api/messages', function (req, res) {
-    MessageModel.find(function (err, messages) {
+    TextMessageModel.find(function (err, messages) {
         if (err) {
             console.log('error');
         } else {
