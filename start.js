@@ -36,5 +36,5 @@
 //     });
 //   }
 // } else {
-  require('./app.js');
+  require('./app/index.js');
 // }
