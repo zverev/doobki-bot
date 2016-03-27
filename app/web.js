@@ -1,11 +1,12 @@
 var express = require('express');
+var process = require('process');
 var http = require('http');
+var path = require('path');
 
 var config = require('./config.js');
+var MessageModel = require('./db').MessageModel;
 
 var app = express();
-
-app.set('port', config.web.port);
 
 app.use(function (req, res, next) {
     if (req.url == '/health') {
@@ -15,6 +16,19 @@ app.use(function (req, res, next) {
         next();
     }
 });
+
+app.get('/api/messages', function (req, res) {
+    MessageModel.find(function (err, messages) {
+        if (err) {
+            console.log('error');
+        } else {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(messages));
+        }
+    })
+});
+
+app.use(express.static(path.join(process.cwd(), 'static')));
 
 app.use(function (req, res, next) {
     res.writeHead(404);
