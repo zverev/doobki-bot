@@ -12,9 +12,7 @@ var shema = new mongoose.Schema({
 });
 
 shema.methods.toString = function() {
-    return [
-        (this.firstName || ''), (this.lastName || ''), (this.userName ? '@' + this.userName : '')
-    ].join(' ');
+    return this.firstName || this.lastName || ('@' + this.userName);
 };
 
 module.exports = mongoose.model('User', shema);
