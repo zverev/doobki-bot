@@ -34,7 +34,7 @@ timer.on('hour', function() {
 bot.on('text', function(msg) {
     var fromId = msg.from.id;
     checkUser(msg).then(function() {
-        return saveMessage(msg);
+        return saveMessage(msg.text, msg.from.id, 0, msg.chat.id);
     }).then(function() {
         // TODO: log ok
         if (isStartMessage(msg.text)) {
@@ -140,13 +140,13 @@ function checkUser(msg) {
     })
 }
 
-function saveMessage(msg) {
+function saveMessage(msgText, fromId, toId, chatId) {
     return new Promise(function(resolve, reject) {
         var message = new TextMessageModel({
-            userId: msg.from.id,
-            chatId: msg.chat.id,
-            type: 'text',
-            body: msg.text
+            from: fromId,
+            to: toId,
+            chat: chatId || fromId,
+            body: msgText
         });
 
         message.save(function(err, model, affected) {

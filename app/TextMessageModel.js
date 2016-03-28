@@ -1,8 +1,9 @@
 var mongoose = require('mongoose');
 
 var shema = new mongoose.Schema({
-    userId: Number,
-    chatId: Number,
+    from: Number,
+    to: Number,
+    chat: Number,
     body: String,
     date: {
         type: Date,
