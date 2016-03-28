@@ -19,11 +19,13 @@ var bot = new TelegramBot(config.telegram.token, {
 
 timer.on('hour', function() {
     UserModel.find({}, function(err, usersCollection) {
+        debugger;
         if (err) {
             console.log('database error', err);
         } else {
-            usersCollection.map(function(user) {
-                bot.sendMessage(user.id, 'кот под колпаком');
+            getRandomMeme().then(function(text) {
+                var userId = usersCollection[Math.floor(Math.random() * usersCollection.length)].id;
+                bot.sendMessage(userId, text);
             });
         }
     });
@@ -37,10 +39,10 @@ bot.on('text', function(msg) {
         // TODO: log ok
         if (isStartMessage(msg.text)) {
             bot.sendMessage(fromId, config.messages.ok);
-        } else if (getMemeMessage(msg.text)) {
+        } else if (getMemeMessageFromCommand(msg.text)) {
             debugger;
             if (fromId === config.telegram.masterUserId) {
-                addMeme(getMemeMessage(msg.text)).then(function() {
+                addMeme(getMemeMessageFromCommand(msg.text)).then(function() {
                     bot.sendMessage(fromId, config.messages.ok);
                 }, function() {
                     bot.sendMessage(fromId, config.messages.error);
@@ -88,7 +90,7 @@ function getRandomMeme() {
     });
 }
 
-function getMemeMessage(text) {
+function getMemeMessageFromCommand(text) {
     if (text.indexOf('/addmeme') === -1 || text.trim() === '/addmeme') {
         return null;
     } else {
