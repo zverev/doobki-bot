@@ -35,7 +35,7 @@ bot.on('text', function(msg) {
     var fromId = msg.from.id;
     var chatId = msg.chat.id;
     checkUser(msg).then(function() {
-        return saveMessage(msg.text, msg.from.id, 0, msg.chat.id);
+        return saveMessage(msg.text, fromId, 0, chatId);
     }).then(function() {
         // TODO: log ok
         if (isStartMessage(msg.text)) {
@@ -143,9 +143,9 @@ function checkUser(msg) {
 
 function sendMessage(msgText, toId, chatId) {
     var fromId = 0;
-    saveMessage(msgText, fromId, toId, chatId).then(function () {
+    saveMessage(msgText, fromId, toId, chatId).then(function() {
         bot.sendMessage(toId, msgText);
-    }, function () {
+    }, function() {
         bot.sendMessage(config.telegram.masterUserId, 'error delivering \'' + msgText + '\' to ' + toId);
     })
 }
@@ -168,3 +168,56 @@ function saveMessage(msgText, fromId, toId, chatId) {
         });
     });
 }
+
+function defaultMessageHandler(type, msg) {
+    var fromId = msg && msg.from && msg.from.id || -1;
+    var chatId = msg && msg.chat && msg.chat.id || -1;
+    checkUser(msg).then(function() {
+        return saveMessage(type, fromId, 0, chatId);
+    }).then(function() {
+        sendMessage(config.messages.unknownMessage, fromId, chatId);
+    });
+}
+
+bot.on('audio', function(msg) {
+    defaultMessageHandler('audio', msg)
+});
+bot.on('document', function(msg) {
+    defaultMessageHandler('document', msg)
+});
+bot.on('photo', function(msg) {
+    defaultMessageHandler('photo', msg)
+});
+bot.on('sticker', function(msg) {
+    defaultMessageHandler('sticker', msg)
+});
+bot.on('video', function(msg) {
+    defaultMessageHandler('video', msg)
+});
+bot.on('voice', function(msg) {
+    defaultMessageHandler('voice', msg)
+});
+bot.on('contact', function(msg) {
+    defaultMessageHandler('contact', msg)
+});
+bot.on('location', function(msg) {
+    defaultMessageHandler('location', msg)
+});
+bot.on('new_chat_participant', function(msg) {
+    defaultMessageHandler('new_chat_participant', msg)
+});
+bot.on('left_chat_participant', function(msg) {
+    defaultMessageHandler('left_chat_participant', msg)
+});
+bot.on('new_chat_title', function(msg) {
+    defaultMessageHandler('new_chat_title', msg)
+});
+bot.on('new_chat_photo', function(msg) {
+    defaultMessageHandler('new_chat_photo', msg)
+});
+bot.on('delete_chat_photo', function(msg) {
+    defaultMessageHandler('delete_chat_photo', msg)
+});
+bot.on('group_chat_created', function(msg) {
+    defaultMessageHandler('group_chat_created', msg)
+});

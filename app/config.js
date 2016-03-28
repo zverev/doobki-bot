@@ -36,6 +36,7 @@ module.exports = {
     messages: {
         ok: '⚡️👌',
         error: 'апшибка😁',
-        accessDenied: '🙈access denied🙈'
+        accessDenied: '🙈access denied🙈',
+        unknownMessage: 'я такое не понимаю 😔'
     }
 }
