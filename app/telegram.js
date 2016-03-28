@@ -74,7 +74,17 @@ function createMayMessage() {
 
 function getRandomMeme() {
     return new Promise(function(resolve, reject) {
-        resolve('кот под колпаком');
+        if (Math.floor(Math.random() * 6) === 0) {
+            resolve('майские ' + createMayMessage());
+        } else {
+            MemeModel.find({}, function(err, collection) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(collection[Math.floor(Math.random() * collection.length)].body);
+                }
+            })
+        }
     });
 }
 
