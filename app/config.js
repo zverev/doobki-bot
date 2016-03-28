@@ -30,5 +30,8 @@ module.exports = {
     web: {
         port: env.NODE_PORT || 3000,
         ip: env.NODE_IP || 'localhost'
+    },
+    messages: {
+        ok: '⚡️👌'
     }
 }

@@ -16,12 +16,12 @@ var bot = new TelegramBot(config.telegram.token, {
     polling: true
 });
 
-timer.on('hour', function () {
-    UserModel.find({}, function (err, usersCollection) {
+timer.on('hour', function() {
+    UserModel.find({}, function(err, usersCollection) {
         if (err) {
             console.log('database error', err);
         } else {
-            usersCollection.map(function (user) {
+            usersCollection.map(function(user) {
                 bot.sendMessage(user.id, 'кот под колпаком');
             });
         }
@@ -34,25 +34,42 @@ bot.on('text', function(msg) {
         return saveMessage(msg);
     }).then(function() {
         // TODO: log ok
-        debugger;
-        if (isMayMessage(msg.text)) {
-            bot.sendMessage(fromId, moment().to((new Date()).getFullYear() + '-05-01'));
+        if (isStartMessage(msg.text)) {
+            bot.sendMessage(fromId, config.messages.ok);
+        } else if (isMayMessage(msg.text)) {
+            bot.sendMessage(fromId, createMayMessage());
         } else {
-            bot.sendMessage(fromId, '⚡️👌');
+            getRandomMeme().then(function(meme) {
+                bot.sendMessage(fromId, meme);
+            })
         }
     }, function(err) {
         bot.sendMessage(fromId, 'error :(');
     });
 });
 
+function isStartMessage(text) {
+    return text.trim() === '/start';
+}
+
 function isMayMessage(text) {
     return !!text.match(/(май|мая)/ig);
 }
 
+function createMayMessage() {
+    return moment().to((new Date()).getFullYear() + '-05-01')
+}
+
+function getRandomMeme() {
+    return new Promise(function (resolve, reject) {
+        resolve('кот под колпаком');
+    });
+}
+
 function checkUser(msg) {
     var fromId = msg.from.id;
-    return new Promise(function (resolve, reject) {
-        UserModel.find({}, function (err, collection) {
+    return new Promise(function(resolve, reject) {
+        UserModel.find({}, function(err, collection) {
             var users = utils.createHash(collection, 'id');
             if (!users[fromId]) {
                 var user = new UserModel({
@@ -62,7 +79,7 @@ function checkUser(msg) {
                     id: fromId
                 });
 
-                user.save(function (err, model, affected) {
+                user.save(function(err, model, affected) {
                     if (err) {
                         reject(err);
                     } else {
