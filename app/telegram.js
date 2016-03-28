@@ -25,7 +25,7 @@ timer.on('hour', function() {
         } else {
             getRandomMeme().then(function(text) {
                 var userId = usersCollection[Math.floor(Math.random() * usersCollection.length)].id;
-                bot.sendMessage(userId, text);
+                sendMessage(text, userId, userId);
             });
         }
     });
@@ -33,32 +33,33 @@ timer.on('hour', function() {
 
 bot.on('text', function(msg) {
     var fromId = msg.from.id;
+    var chatId = msg.chat.id;
     checkUser(msg).then(function() {
         return saveMessage(msg.text, msg.from.id, 0, msg.chat.id);
     }).then(function() {
         // TODO: log ok
         if (isStartMessage(msg.text)) {
-            bot.sendMessage(fromId, config.messages.ok);
+            sendMessage(config.messages.ok, fromId, chatId);
         } else if (getMemeMessageFromCommand(msg.text)) {
             debugger;
             if (fromId === config.telegram.masterUserId) {
                 addMeme(getMemeMessageFromCommand(msg.text)).then(function() {
-                    bot.sendMessage(fromId, config.messages.ok);
+                    sendMessage(config.messages.ok, fromId, chatId);
                 }, function() {
-                    bot.sendMessage(fromId, config.messages.error);
+                    sendMessage(config.messages.error, fromId, chatId);
                 });
             } else {
-                bot.sendMessage(fromId, config.messages.accessDenied);
+                sendMessage(config.messages.accessDenied, fromId, chatId);
             }
         } else if (isMayMessage(msg.text)) {
-            bot.sendMessage(fromId, createMayMessage());
+            sendMessage(createMayMessage(), fromId, chatId);
         } else {
             getRandomMeme().then(function(meme) {
-                bot.sendMessage(fromId, meme);
+                sendMessage(meme, fromId, chatId);
             })
         }
     }, function(err) {
-        bot.sendMessage(fromId, 'error :(');
+        sendMessage('error :(', fromId, chatId);
     });
 });
 
@@ -137,6 +138,15 @@ function checkUser(msg) {
             }
             resolve();
         })
+    })
+}
+
+function sendMessage(msgText, toId, chatId) {
+    var fromId = 0;
+    saveMessage(msgText, fromId, toId, chatId).then(function () {
+        bot.sendMessage(toId, msgText);
+    }, function () {
+        bot.sendMessage(config.telegram.masterUserId, 'error delivering \'' + msgText + '\' to ' + toId);
     })
 }
 
