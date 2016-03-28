@@ -8,6 +8,7 @@ var Timer = require('./Timer.js');
 
 var TextMessageModel = require('./TextMessageModel.js');
 var UserModel = require('./UserModel.js');
+var MemeModel = require('./MemeModel.js');
 
 var timer = new Timer();
 
@@ -36,6 +37,17 @@ bot.on('text', function(msg) {
         // TODO: log ok
         if (isStartMessage(msg.text)) {
             bot.sendMessage(fromId, config.messages.ok);
+        } else if (getMemeMessage(msg.text)) {
+            debugger;
+            if (fromId === config.telegram.masterUserId) {
+                addMeme(getMemeMessage(msg.text)).then(function() {
+                    bot.sendMessage(fromId, config.messages.ok);
+                }, function() {
+                    bot.sendMessage(fromId, config.messages.error);
+                });
+            } else {
+                bot.sendMessage(fromId, config.messages.accessDenied);
+            }
         } else if (isMayMessage(msg.text)) {
             bot.sendMessage(fromId, createMayMessage());
         } else {
@@ -61,9 +73,33 @@ function createMayMessage() {
 }
 
 function getRandomMeme() {
-    return new Promise(function (resolve, reject) {
+    return new Promise(function(resolve, reject) {
         resolve('кот под колпаком');
     });
+}
+
+function getMemeMessage(text) {
+    if (text.indexOf('/addmeme') === -1 || text.trim() === '/addmeme') {
+        return null;
+    } else {
+        return text.split(' ').splice(1).join(' ');
+    }
+}
+
+function addMeme(body) {
+    return new Promise(function(resolve, reject) {
+        var meme = new MemeModel({
+            body: body
+        });
+
+        meme.save(function(err, model, affected) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        });
+    })
 }
 
 function checkUser(msg) {
