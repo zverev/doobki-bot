@@ -18,6 +18,9 @@ var bot = new TelegramBot(config.telegram.token, {
 });
 
 timer.on('hour', function() {
+    if (Math.random() > 0.1) {
+        return;
+    }
     UserModel.find({}, function(err, usersCollection) {
         debugger;
         if (err) {
